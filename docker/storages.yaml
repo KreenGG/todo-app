@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: todo_list_postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - psql-data:/var/lib/postgresql/todo_app/
+    env_file:
+      - ../.env
+
+volumes:
+  psql-data:
