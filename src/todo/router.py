@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .exceptions import TodoNotFoundException
 from .service import BaseTodoService, ORMTodoService
-from .schemas import TodoAddSchema, TodoDeleteSchema, TodoOutSchema
+from .schemas import TodoAddSchema, TodoDeleteSchema, TodoOutSchema, TodoUpdateSchema
 
 router = APIRouter(tags=["Todo"])
 
@@ -52,14 +52,20 @@ async def create_todo(
 
 @router.patch(
     "/{id}",
+    responses={
+        status.HTTP_200_OK: {'model': ApiResponse[TodoOutSchema]},
+        status.HTTP_404_NOT_FOUND: {'model': ErrorApiResponse},
+    }
 )
 async def update_todo(
-    todo: TodoAddSchema, 
-    todo_id: int, 
+    todo: TodoUpdateSchema, 
+    id: int, 
     session: AsyncSession = Depends(get_session)
 ) :
     service: BaseTodoService = ORMTodoService()
-    todo = await service.update_todo(session, todo, todo_id)
+    todo = await service.update_todo(session, todo, id)
+    if not todo:
+        raise TodoNotFoundException
     response = ApiResponse[TodoOutSchema](data=todo)
     return response
 

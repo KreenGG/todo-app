@@ -1,9 +1,17 @@
 from datetime import datetime
-from pydantic import BaseModel
+from typing import Any, Optional
+from pydantic import AwareDatetime, BaseModel, NaiveDatetime
 
 
 class TodoAddSchema(BaseModel):
     title: str
+    description: Optional[str]
+    target_date: datetime
+    
+class TodoUpdateSchema(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    target_date: Optional[datetime] = None
     
 class TodoDeleteSchema(BaseModel):
     success: bool

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Iterable
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .schemas import TodoAddSchema
+from .schemas import TodoAddSchema, TodoUpdateSchema
 
 from .repository import BaseTodoRepository, SQLAlchemyTodoRepository
 
@@ -47,10 +47,15 @@ class ORMTodoService(BaseTodoService):
         todo = await repo.add(session, todo)
         return todo
     
-    async def update_todo(self, session, todo: TodoAddSchema, todo_id: int) -> Todo:
+    async def update_todo(self, session, todo: TodoUpdateSchema, todo_id: int) -> Todo:
         repo: BaseTodoRepository = SQLAlchemyTodoRepository()
-        todo = await repo.update(session, todo, todo_id)
-        return todo
+        todo = await repo.get_single(session, todo_id)
+        if not todo:
+            return None
+        
+        updated_data = todo.model_dump(exclude_unset=True)
+        updated_todo = await repo.update(session, updated_data, todo_id)
+        return updated_todo
     
     async def delete_todo(self, session: AsyncSession, todo_id: int) -> None:
         repo: BaseTodoRepository = SQLAlchemyTodoRepository()

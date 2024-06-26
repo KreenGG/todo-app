@@ -3,7 +3,7 @@ from typing import Iterable
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .schemas import TodoAddSchema
+from .schemas import TodoAddSchema, TodoUpdateSchema
 
 from .entities import Todo
 
@@ -55,13 +55,13 @@ class SQLAlchemyTodoRepository(BaseTodoRepository):
         query = insert(TodoModel).values(**todo.__dict__).returning(TodoModel)
         result = await session.execute(query)
         await session.commit()
-        return result.scalar_one()
+        return result.scalar_one().to_entity()
     
-    async def update(self, session: AsyncSession, todo: TodoAddSchema, todo_id: int) -> Todo:
-        query = update(TodoModel).where(TodoModel.id == todo_id).values(**todo.__dict__).returning(TodoModel)
+    async def update(self, session: AsyncSession, todo: dict, todo_id: int) -> Todo:
+        query = update(TodoModel).where(TodoModel.id == todo_id).values(**todo).returning(TodoModel)
         result = await session.execute(query)
         await session.commit()
-        return result.scalar_one()
+        return result.scalar_one().to_entity()
     
     async def delete(self, session: AsyncSession, todo_id: int) -> None:
         query = delete(TodoModel).where(TodoModel.id == todo_id)
