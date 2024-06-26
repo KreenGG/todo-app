@@ -1,37 +1,73 @@
-from fastapi import APIRouter
-from sqlalchemy import insert, select, update
-from src.schemas import ApiResponse
-from src.database import async_session
-from .schemas import TodoOutResponse
+from fastapi import APIRouter, Depends, status
+from src.schemas import ApiResponse, ErrorApiResponse
+from src.database import get_session
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from .models import Todo
+from .exceptions import TodoNotFoundException
+from .service import BaseTodoService, ORMTodoService
+from .schemas import TodoAddSchema, TodoDeleteSchema, TodoOutSchema
 
 router = APIRouter(tags=["Todo"])
 
-@router.get("", response_model=ApiResponse[list[TodoOutResponse]])
-async def get_all_todos():
-    async with async_session() as session:
-        query = select(Todo)
-        result = await session.execute(query)
-        result_orm = result.scalars().all()
-        data = [TodoOutResponse.model_validate(row) for row in result_orm]
-        
-        response = ApiResponse[list[TodoOutResponse]](data=data)
-        return response
+@router.get("")
+async def get_todo_list(
+    session: AsyncSession = Depends(get_session)
+) -> ApiResponse[list[TodoOutSchema]]:
+    service: BaseTodoService = ORMTodoService()
+    todo_list = await service.get_todo_list(session)
+    response = ApiResponse[list[TodoOutSchema]](data=todo_list)
+    return response
 
+@router.get(
+    "/{id}",
+    responses={
+        status.HTTP_200_OK: {'model': ApiResponse[TodoOutSchema]},
+        status.HTTP_404_NOT_FOUND: {'model': ErrorApiResponse},
+    },
+)
+async def get_single_todo(
+    id: int, 
+    session: AsyncSession = Depends(get_session)
+) -> ApiResponse[TodoOutSchema]:
+    service: BaseTodoService = ORMTodoService()
+    todo = await service.get_single_todo(session, id)
+    if not todo:
+        raise TodoNotFoundException
+    
+    response = ApiResponse[TodoOutSchema](data=todo)
+    return response
         
-@router.post("")
-async def create_todo(title: str):
-    async with async_session() as session:
-        query = insert(Todo).values({"title": title})
-        await session.execute(query)
-        await session.commit()
-        return "success"
+@router.post(
+    "",
+    status_code=status.HTTP_201_CREATED
+)
+async def create_todo(
+    todo: TodoAddSchema, 
+    session: AsyncSession = Depends(get_session)
+) -> ApiResponse[TodoOutSchema]:
+    service: BaseTodoService = ORMTodoService()
+    todo = await service.add_todo(session, todo)
+    response = ApiResponse[TodoOutSchema](data=todo)
+    return response
 
-@router.put("/{id}")
-async def update_todo(id: int, title: str):
-    async with async_session() as session:
-        query = update(Todo).where(Todo.id == id).values({"title": title})
-        await session.execute(query)
-        await session.commit()
-        return "success"
+@router.patch(
+    "/{id}",
+)
+async def update_todo(
+    todo: TodoAddSchema, 
+    todo_id: int, 
+    session: AsyncSession = Depends(get_session)
+) :
+    service: BaseTodoService = ORMTodoService()
+    todo = await service.update_todo(session, todo, todo_id)
+    response = ApiResponse[TodoOutSchema](data=todo)
+    return response
+
+@router.delete("")
+async def delete_todo(
+    todo_id: int, 
+    session: AsyncSession = Depends(get_session)
+) -> ApiResponse[TodoDeleteSchema]:
+    service: BaseTodoService = ORMTodoService()
+    await service.delete_todo(session, todo_id)
+    return ApiResponse[TodoDeleteSchema](data={"success": True})

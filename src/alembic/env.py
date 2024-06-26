@@ -10,7 +10,7 @@ from alembic import context
 from src.config import settings
 from src.database import Base   # noqa
 
-from src.todo.models import Todo    # noqa
+from src.todo.models import TodoModel    # noqa
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

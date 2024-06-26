@@ -12,3 +12,6 @@ class PingResponse(BaseModel):
 class ApiResponse(BaseModel, Generic[T]):
     data: Optional[T] = Field(default_factory=dict)
     meta: Optional[dict] = Field(default_factory=dict)
+
+class ErrorApiResponse(BaseModel):
+    detail: str

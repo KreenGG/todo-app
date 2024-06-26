@@ -7,7 +7,7 @@ from src.todo.router import router as todo_router
 app = FastAPI(
     title="ToDo App",
     debug=True,
-    root_path="/api"
+    root_path="/api",
     )
 
 @app.get("/", include_in_schema=False)
