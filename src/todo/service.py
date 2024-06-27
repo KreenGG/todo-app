@@ -34,12 +34,12 @@ class BaseTodoService(ABC):
 class ORMTodoService(BaseTodoService):
     async def get_todo_list(self, session: AsyncSession) -> Iterable[Todo]:
         repo: BaseTodoRepository = SQLAlchemyTodoRepository()
-        todo_list = await repo.get_all(session)
+        todo_list = await repo.find_all(session)
         return todo_list
     
     async def get_single_todo(self, session, todo_id: int) -> Todo:
         repo: BaseTodoRepository = SQLAlchemyTodoRepository()
-        todo = await repo.get_single(session, todo_id)
+        todo = await repo.find_by_id(session, todo_id)
         return todo
     
     async def add_todo(self, session: AsyncSession, todo: TodoAddSchema) -> Todo:
@@ -49,7 +49,7 @@ class ORMTodoService(BaseTodoService):
     
     async def update_todo(self, session, todo: TodoUpdateSchema, todo_id: int) -> Todo:
         repo: BaseTodoRepository = SQLAlchemyTodoRepository()
-        todo = await repo.get_single(session, todo_id)
+        todo = await repo.find_by_id(session, todo_id)
         if not todo:
             return None
         

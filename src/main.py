@@ -18,4 +18,4 @@ def index():
 def ping() -> PingResponse: 
     return {"result": True}
 
-app.include_router(todo_router, prefix="/todo")
+app.include_router(todo_router, prefix="/v1/todos")

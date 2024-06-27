@@ -55,7 +55,7 @@ async def create_todo(
     responses={
         status.HTTP_200_OK: {'model': ApiResponse[TodoOutSchema]},
         status.HTTP_404_NOT_FOUND: {'model': ErrorApiResponse},
-    }
+    },
 )
 async def update_todo(
     todo: TodoUpdateSchema, 

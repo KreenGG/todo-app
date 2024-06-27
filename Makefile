@@ -6,3 +6,11 @@ storages:
 
 storages-down:
 	docker compose -f docker/storages.yaml down
+
+down:
+	make storages-down
+
+run:
+	make down 
+	make storages 
+	make app
