@@ -69,11 +69,11 @@ async def update_todo(
     response = ApiResponse[TodoOutSchema](data=todo)
     return response
 
-@router.delete("")
+@router.delete("/{id}")
 async def delete_todo(
-    todo_id: int, 
+    id: int, 
     session: AsyncSession = Depends(get_session)
 ) -> ApiResponse[TodoDeleteSchema]:
     service: BaseTodoService = ORMTodoService()
-    await service.delete_todo(session, todo_id)
+    await service.delete_todo(session, id)
     return ApiResponse[TodoDeleteSchema](data={"success": True})

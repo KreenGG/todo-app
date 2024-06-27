@@ -49,8 +49,8 @@ class ORMTodoService(BaseTodoService):
     
     async def update_todo(self, session, todo: TodoUpdateSchema, todo_id: int) -> Todo:
         repo: BaseTodoRepository = SQLAlchemyTodoRepository()
-        todo = await repo.find_by_id(session, todo_id)
-        if not todo:
+        todo_obj = await repo.find_by_id(session, todo_id)
+        if not todo_obj:
             return None
         
         updated_data = todo.model_dump(exclude_unset=True)

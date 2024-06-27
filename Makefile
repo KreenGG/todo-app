@@ -1,4 +1,7 @@
 app:
+	docker compose -f .\docker\app.yaml -f .\docker\storages.yaml up --build
+
+app-local:
 	uvicorn src.main:app --reload
 
 storages:
