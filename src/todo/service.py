@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Iterable
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import Depends
 
 from .schemas import TodoAddSchema, TodoUpdateSchema
 
@@ -11,52 +11,52 @@ from .entities import Todo
 
 class BaseTodoService(ABC):
     @abstractmethod
-    async def get_todo_list(self, session) -> Iterable[Todo]:
+    async def get_todo_list(self) -> Iterable[Todo]:
         raise NotImplementedError
     
     @abstractmethod
-    async def get_single_todo(self, session, todo_id: int) -> Todo:
+    async def get_single_todo(self, todo_id: int) -> Todo:
         raise NotImplementedError
     
     @abstractmethod
-    async def add_todo(self, session, todo: TodoAddSchema) -> Todo:
+    async def add_todo(self, todo: TodoAddSchema) -> Todo:
         raise NotImplementedError
     
     @abstractmethod
-    async def update_todo(self, session, todo: TodoAddSchema, todo_id: int) -> Todo:
+    async def update_todo(self, todo: TodoAddSchema, todo_id: int) -> Todo:
         raise NotImplementedError
     
     @abstractmethod
-    async def delete_todo(self, session, todo_id: int) -> None:
+    async def delete_todo(self, todo_id: int) -> None:
         raise NotImplementedError
 
 
 class ORMTodoService(BaseTodoService):
-    async def get_todo_list(self, session: AsyncSession) -> Iterable[Todo]:
-        repo: BaseTodoRepository = SQLAlchemyTodoRepository()
-        todo_list = await repo.find_all(session)
+    def __init__(self, repo: BaseTodoRepository = Depends(SQLAlchemyTodoRepository)) -> None:
+        self.repo = repo
+    
+    async def get_todo_list(
+        self,
+) -> Iterable[Todo]:
+        todo_list = await self.repo.find_all()
         return todo_list
     
-    async def get_single_todo(self, session, todo_id: int) -> Todo:
-        repo: BaseTodoRepository = SQLAlchemyTodoRepository()
-        todo = await repo.find_by_id(session, todo_id)
+    async def get_single_todo(self, todo_id: int) -> Todo:
+        todo = await self.repo.find_by_id(todo_id)
         return todo
     
-    async def add_todo(self, session: AsyncSession, todo: TodoAddSchema) -> Todo:
-        repo: BaseTodoRepository = SQLAlchemyTodoRepository()
-        todo = await repo.add(session, todo)
+    async def add_todo(self, todo: TodoAddSchema) -> Todo:
+        todo = await self.repo.add(todo)
         return todo
     
-    async def update_todo(self, session, todo: TodoUpdateSchema, todo_id: int) -> Todo:
-        repo: BaseTodoRepository = SQLAlchemyTodoRepository()
-        todo_obj = await repo.find_by_id(session, todo_id)
+    async def update_todo(self, todo: TodoUpdateSchema, todo_id: int) -> Todo:
+        todo_obj = await self.repo.find_by_id(todo_id)
         if not todo_obj:
             return None
         
         updated_data = todo.model_dump(exclude_unset=True)
-        updated_todo = await repo.update(session, updated_data, todo_id)
+        updated_todo = await self.repo.update(updated_data, todo_id)
         return updated_todo
     
-    async def delete_todo(self, session: AsyncSession, todo_id: int) -> None:
-        repo: BaseTodoRepository = SQLAlchemyTodoRepository()
-        await repo.delete(session, todo_id)
+    async def delete_todo(self, todo_id: int) -> None:
+        await self.repo.delete(todo_id)

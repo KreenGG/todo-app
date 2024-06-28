@@ -1,6 +1,6 @@
 from datetime import datetime
-from typing import Any, Optional
-from pydantic import AwareDatetime, BaseModel, NaiveDatetime
+from typing import Optional
+from pydantic import BaseModel
 
 
 class TodoAddSchema(BaseModel):

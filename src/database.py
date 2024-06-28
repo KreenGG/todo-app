@@ -18,14 +18,8 @@ engine = create_async_engine(
 class Base(DeclarativeBase):
     pass
 
+async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
-# async_session = sessionmaker(
-#     engine, class_=AsyncSession, expire_on_commit=False
-# )
-
-async_session = async_sessionmaker(engine, expire_on_commit=False)
-
-# Разобраться зачем я эту штуку сделал
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
-    async with async_session() as session:
+    async with async_session_maker() as session:
         yield session

@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, status
 from src.schemas import ApiResponse, ErrorApiResponse
-from src.database import get_session
-from sqlalchemy.ext.asyncio import AsyncSession
+
 
 from .exceptions import TodoNotFoundException
 from .service import BaseTodoService, ORMTodoService
@@ -11,10 +10,9 @@ router = APIRouter(tags=["Todo"])
 
 @router.get("")
 async def get_todo_list(
-    session: AsyncSession = Depends(get_session)
+    service: BaseTodoService = Depends(ORMTodoService),
 ) -> ApiResponse[list[TodoOutSchema]]:
-    service: BaseTodoService = ORMTodoService()
-    todo_list = await service.get_todo_list(session)
+    todo_list = await service.get_todo_list()
     response = ApiResponse[list[TodoOutSchema]](data=todo_list)
     return response
 
@@ -27,10 +25,9 @@ async def get_todo_list(
 )
 async def get_single_todo(
     id: int, 
-    session: AsyncSession = Depends(get_session)
+    service: BaseTodoService = Depends(ORMTodoService),
 ) -> ApiResponse[TodoOutSchema]:
-    service: BaseTodoService = ORMTodoService()
-    todo = await service.get_single_todo(session, id)
+    todo = await service.get_single_todo(id)
     if not todo:
         raise TodoNotFoundException
     
@@ -43,10 +40,9 @@ async def get_single_todo(
 )
 async def create_todo(
     todo: TodoAddSchema, 
-    session: AsyncSession = Depends(get_session)
+    service: BaseTodoService = Depends(ORMTodoService),
 ) -> ApiResponse[TodoOutSchema]:
-    service: BaseTodoService = ORMTodoService()
-    todo = await service.add_todo(session, todo)
+    todo = await service.add_todo(todo)
     response = ApiResponse[TodoOutSchema](data=todo)
     return response
 
@@ -60,10 +56,9 @@ async def create_todo(
 async def update_todo(
     todo: TodoUpdateSchema, 
     id: int, 
-    session: AsyncSession = Depends(get_session)
+    service: BaseTodoService = Depends(ORMTodoService),
 ) :
-    service: BaseTodoService = ORMTodoService()
-    todo = await service.update_todo(session, todo, id)
+    todo = await service.update_todo(todo, id)
     if not todo:
         raise TodoNotFoundException
     response = ApiResponse[TodoOutSchema](data=todo)
@@ -72,8 +67,7 @@ async def update_todo(
 @router.delete("/{id}")
 async def delete_todo(
     id: int, 
-    session: AsyncSession = Depends(get_session)
+    service: BaseTodoService = Depends(ORMTodoService),
 ) -> ApiResponse[TodoDeleteSchema]:
-    service: BaseTodoService = ORMTodoService()
-    await service.delete_todo(session, id)
+    await service.delete_todo(id)
     return ApiResponse[TodoDeleteSchema](data={"success": True})
