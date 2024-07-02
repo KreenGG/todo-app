@@ -1,3 +1,5 @@
+import uvicorn
+
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 
@@ -19,3 +21,6 @@ def ping() -> PingResponse:
     return {"result": True}
 
 app.include_router(todo_router, prefix="/v1/todos")
+
+if __name__ == "__main__":
+    uvicorn.run(app, reload=True)

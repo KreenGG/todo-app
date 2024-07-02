@@ -7,11 +7,9 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from src.config import settings
 
-SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL
-DATABASE_PARAMS = {"echo": True,}
-
 engine = create_async_engine(
-    SQLALCHEMY_DATABASE_URL, **DATABASE_PARAMS
+    url=str(settings.db.database_url),
+    echo=settings.db.echo
 )
 
 
