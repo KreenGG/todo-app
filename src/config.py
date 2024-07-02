@@ -7,11 +7,11 @@ class DatabaseConfig(BaseModel):
     port: int
     user: str
     password: str
-    db: str
+    name: str
     
     @property
-    def database_url(self) -> PostgresDsn:
-        return f"postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}/{self.db}"
+    def url(self) -> PostgresDsn:
+        return f"postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}/{self.name}"
     
     echo: bool = True
 
