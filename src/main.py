@@ -4,8 +4,8 @@ from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from .schemas import PingResponse
-from src.todo.router import router as todo_router
+from .api.v1.schemas import PingResponse
+from .api.v1 import router as v1_router
 
 app = FastAPI(
     title="ToDo App",
@@ -29,7 +29,7 @@ def index():
 def ping() -> PingResponse: 
     return {"result": True}
 
-app.include_router(todo_router, prefix="/v1/todos")
+app.include_router(v1_router)
 
 if __name__ == "__main__":
     uvicorn.run(app, reload=True)

@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, status
-from src.schemas import ApiResponse, ErrorApiResponse
+from src.api.v1.schemas import ApiResponse, ErrorApiResponse
 
 
 from .exceptions import TodoNotFoundException
-from .service import BaseTodoService, ORMTodoService
-from .schemas import TodoAddSchema, TodoDeleteSchema, TodoOutSchema, TodoUpdateSchema
+from src.core.todo.service import BaseTodoService, ORMTodoService
+from src.core.todo.schemas import TodoAddSchema, TodoDeleteSchema, TodoOutSchema, TodoUpdateSchema
 
-router = APIRouter(tags=["Todo"])
+router = APIRouter()
 
 @router.get("")
 async def get_todo_list(
