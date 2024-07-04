@@ -1,4 +1,4 @@
-"""empty message
+"""Empty message.
 
 Revision ID: 84be4a782dd0
 Revises: 4d41b473d08a
@@ -7,9 +7,9 @@ Create Date: 2024-06-26 17:45:42.786218
 """
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = '84be4a782dd0'
