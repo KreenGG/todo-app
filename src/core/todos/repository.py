@@ -5,7 +5,7 @@ from fastapi import Depends
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.database import get_session
+from src.core.database import get_session
 
 from .entities import Todo
 from .models import TodoModel
