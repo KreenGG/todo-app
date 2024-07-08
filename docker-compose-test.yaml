@@ -1,0 +1,33 @@
+version: '3.9'
+
+services:
+  test-postgres:
+    image: postgres:latest
+    container_name: test-postgres
+    environment:
+      POSTGRES_DB: todo_app_test
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5433
+    ports:
+      - "5433:5432"
+    volumes:
+      - psql-data:/var/lib/postgresql/todo_app_test/
+
+  main-app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: main-app
+    ports: 
+      - "8000:8000"
+    command: "sh /app/entrypoint.sh"
+    env_file:
+      - .env
+    depends_on:
+      - test-postgres
+
+
+volumes:
+  psql-data:

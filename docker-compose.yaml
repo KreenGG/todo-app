@@ -1,4 +1,4 @@
-version: "3.9"
+version: '3.9'
 
 services:
   postgres:
@@ -14,6 +14,20 @@ services:
       - "5432:5432"
     volumes:
       - psql-data:/var/lib/postgresql/todo_app/
+
+  main-app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: main-app
+    ports: 
+      - "8000:8000"
+    command: "sh /app/entrypoint.sh"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+
 
 volumes:
   psql-data:

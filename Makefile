@@ -1,19 +1,21 @@
-DC = docker compose -p todo-app
-
+DC = docker compose
 app:
-	${DC} -f .\docker\app.yaml -f .\docker\storages.yaml up --build
+	${DC} up --build
 
 app-local:
 	uvicorn src.main:app --reload
 
 storages:
-	${DC} -f docker/storages.yaml up -d
+	${DC} up -d postgres
 
-storages-down:
-	${DC} -f docker/storages.yaml down
+storages-test:
+	${DC} -f docker-compose-test.yaml up -d test-postgres
 
 down:
-	make storages-down
+	${DC} down
+
+down-test:
+	${DC} -f docker-compose-test.yaml down
 
 run:
 	make down 
