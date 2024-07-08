@@ -9,6 +9,7 @@ from alembic import context
 from src.config import settings
 from src.core.models import Base  # noqa
 from src.core.todos.models import TodoModel  # noqa
+from src.core.users.models import UserModel  # noqa
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
