@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Annotated
 
-from fastapi import Depends
+from dishka import FromDishka
 
 from src.core.users.entities import User
 from src.core.users.exceptions import (InvalidCredentialsException,
@@ -26,7 +25,7 @@ class BaseUserService(ABC):
 class ORMUserService:
     def __init__(
         self,
-        repo: Annotated[BaseUserRepository, Depends()],
+        repo: FromDishka[BaseUserRepository]
     ) -> None:
         self.repo = repo
 

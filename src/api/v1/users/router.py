@@ -1,13 +1,13 @@
-from typing import Annotated
-
-from fastapi import APIRouter, Depends, Response, status
+from dishka import FromDishka
+from dishka.integrations.fastapi import DishkaRoute
+from fastapi import APIRouter, Response, status
 
 from src.api.v1.schemas import ApiResponse
 from src.core.users.schemas import (UserLoginSchema, UserOutSchema,
                                     UserRegisterSchema)
 from src.core.users.service import BaseUserService
 
-router = APIRouter()
+router = APIRouter(route_class=DishkaRoute)
 
 
 @router.post(
@@ -19,7 +19,7 @@ router = APIRouter()
 )
 async def register_user(
     user: UserRegisterSchema,
-    service: Annotated[BaseUserService, Depends()],
+    service: FromDishka[BaseUserService]
 ) -> ApiResponse[UserOutSchema]:
     created_user = await service.register_user(user)
     return {
@@ -32,7 +32,7 @@ async def register_user(
 async def login_user(
     response: Response,
     user: UserLoginSchema,
-    service: Annotated[BaseUserService, Depends()],
+    service: FromDishka[BaseUserService]
 ):
     token = await service.login_user(user)
     response.set_cookie("access_token", token, httponly=True)

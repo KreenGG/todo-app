@@ -10,14 +10,10 @@ engine = create_async_engine(
     echo=settings.db.echo,
 )
 
+
 async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
 
-# Нужна чтобы Depends() для сессии адекватно работал
-def get_session_stub():
-    raise NotImplementedError
-
-
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
-    async with async_session_maker() as session:
+    async with async_session_maker as session:
         yield session

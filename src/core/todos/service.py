@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Iterable
 
-from fastapi import Depends
+from dishka.integrations.fastapi import FromDishka
 
 from .entities import Todo
 from .repository import BaseTodoRepository
@@ -33,7 +33,7 @@ class BaseTodoService(ABC):
 class ORMTodoService(BaseTodoService):
     def __init__(
         self,
-        repo: BaseTodoRepository = Depends(),
+        repo: FromDishka[BaseTodoRepository]
     ) -> None:
         self.repo = repo
 

@@ -14,6 +14,7 @@ sqlalchemy = "^2.0.31"
 asyncpg = "^0.29.0"
 alembic = "^1.13.1"
 pyjwt = "^2.8.0"
+dishka = "^1.2.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -21,6 +22,7 @@ pre-commit = "^3.7.1"
 pytest = "^8.2.2"
 httpx = "^0.27.0"
 pytest-asyncio = "^0.23.7"
+faker = "^26.0.0"
 
 [build-system]
 requires = ["poetry-core"]

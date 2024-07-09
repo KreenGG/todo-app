@@ -1,11 +1,12 @@
 import uvicorn
+from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 
 from .api.v1 import router as v1_router
 from .api.v1.schemas import PingResponse
-from .dependencies import init_dependencies
+from .dependencies import container
 
 app = FastAPI(
     title="ToDo App",
@@ -34,8 +35,7 @@ def ping() -> PingResponse:
 
 app.include_router(v1_router)
 
-init_dependencies(app)
-
+setup_dishka(container, app)
 
 if __name__ == "__main__":
     uvicorn.run(app, reload=True)

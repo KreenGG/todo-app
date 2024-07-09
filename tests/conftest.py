@@ -7,7 +7,6 @@ from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
                                     create_async_engine)
 
 from src.config import settings
-from src.core.database import get_session_stub
 from src.core.models import Base
 from src.main import app
 
@@ -24,8 +23,7 @@ async def get_test_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session_maker() as session:
         yield session
 
-
-app.dependency_overrides[get_session_stub] = get_test_session
+# TODO: Поправить зависимости
 
 
 @pytest.fixture(scope="session", autouse=True)

@@ -1,11 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Annotated
 
-from fastapi import Depends
+from dishka.integrations.fastapi import FromDishka
 from sqlalchemy import insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.database import get_session_stub
 from src.core.users.entities import User
 from src.core.users.models import UserModel
 from src.core.users.schemas import UserRegisterSchema
@@ -26,7 +24,7 @@ class BaseUserRepository(ABC):
 
 
 class SQLAlchemyUserRepository(BaseUserRepository):
-    def __init__(self, session: Annotated[AsyncSession, Depends(get_session_stub)]) -> None:
+    async def __init__(self, session: FromDishka[AsyncSession]) -> None:
         self.session = session
 
     async def find_by_id(self, user_id: int) -> User:
