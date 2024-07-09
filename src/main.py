@@ -5,6 +5,7 @@ from fastapi.responses import RedirectResponse
 
 from .api.v1 import router as v1_router
 from .api.v1.schemas import PingResponse
+from .dependencies import init_dependencies
 
 app = FastAPI(
     title="ToDo App",
@@ -32,6 +33,9 @@ def ping() -> PingResponse:
 
 
 app.include_router(v1_router)
+
+init_dependencies(app)
+
 
 if __name__ == "__main__":
     uvicorn.run(app, reload=True)

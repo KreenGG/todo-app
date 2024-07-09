@@ -7,8 +7,7 @@ from src.core.users.entities import User
 from src.core.users.exceptions import (InvalidCredentialsException,
                                        UserAlreadyExistsException,
                                        UserNotFoundException)
-from src.core.users.repository import (BaseUserRepository,
-                                       SQLAlchemyUserRepository)
+from src.core.users.repository import BaseUserRepository
 from src.core.users.schemas import UserLoginSchema, UserRegisterSchema
 from src.core.users.utils import (create_access_token, hash_password,
                                   verify_password)
@@ -27,7 +26,7 @@ class BaseUserService(ABC):
 class ORMUserService:
     def __init__(
         self,
-        repo: Annotated[BaseUserRepository, Depends(SQLAlchemyUserRepository)],
+        repo: Annotated[BaseUserRepository, Depends()],
     ) -> None:
         self.repo = repo
 

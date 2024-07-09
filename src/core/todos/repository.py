@@ -5,7 +5,7 @@ from fastapi import Depends
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.database import get_session
+from src.core.database import get_session_stub
 
 from .entities import Todo
 from .models import TodoModel
@@ -35,7 +35,7 @@ class BaseTodoRepository(ABC):
 
 
 class SQLAlchemyTodoRepository(BaseTodoRepository):
-    def __init__(self, session: AsyncSession = Depends(get_session)) -> None:
+    def __init__(self, session: AsyncSession = Depends(get_session_stub)) -> None:
         self.session: AsyncSession = session
 
     async def find_all(self) -> Iterable[Todo]:

@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, status
 from src.api.v1.schemas import ApiResponse, ErrorApiResponse
 from src.core.todos.schemas import (TodoAddSchema, TodoDeleteSchema,
                                     TodoOutSchema, TodoUpdateSchema)
-from src.core.todos.service import BaseTodoService, ORMTodoService
+from src.core.todos.service import BaseTodoService
 
 from .exceptions import TodoNotFoundException
 
@@ -12,7 +12,7 @@ router = APIRouter()
 
 @router.get("")
 async def get_todo_list(
-    service: BaseTodoService = Depends(ORMTodoService),
+    service: BaseTodoService = Depends(),
 ) -> ApiResponse[list[TodoOutSchema]]:
     todo_list = await service.get_todo_list()
     response = ApiResponse[list[TodoOutSchema]](data=todo_list)
@@ -28,7 +28,7 @@ async def get_todo_list(
 )
 async def get_single_todo(
     id: int,
-    service: BaseTodoService = Depends(ORMTodoService),
+    service: BaseTodoService = Depends(),
 ) -> ApiResponse[TodoOutSchema]:
     todo = await service.get_single_todo(id)
     if not todo:
@@ -44,7 +44,7 @@ async def get_single_todo(
 )
 async def create_todo(
     todo: TodoAddSchema,
-    service: BaseTodoService = Depends(ORMTodoService),
+    service: BaseTodoService = Depends(),
 ) -> ApiResponse[TodoOutSchema]:
     todo = await service.add_todo(todo)
     response = ApiResponse[TodoOutSchema](data=todo)
@@ -61,7 +61,7 @@ async def create_todo(
 async def update_todo(
     todo: TodoUpdateSchema,
     id: int,
-    service: BaseTodoService = Depends(ORMTodoService),
+    service: BaseTodoService = Depends(),
 ):
     todo = await service.update_todo(todo, id)
     if not todo:
@@ -73,7 +73,7 @@ async def update_todo(
 @router.delete("/{id}")
 async def delete_todo(
     id: int,
-    service: BaseTodoService = Depends(ORMTodoService),
+    service: BaseTodoService = Depends(),
 ) -> ApiResponse[TodoDeleteSchema]:
     await service.delete_todo(id)
     return ApiResponse[TodoDeleteSchema](data={"success": True})

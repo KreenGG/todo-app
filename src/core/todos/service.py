@@ -4,7 +4,7 @@ from typing import Iterable
 from fastapi import Depends
 
 from .entities import Todo
-from .repository import BaseTodoRepository, SQLAlchemyTodoRepository
+from .repository import BaseTodoRepository
 from .schemas import TodoAddSchema, TodoUpdateSchema
 
 
@@ -33,7 +33,7 @@ class BaseTodoService(ABC):
 class ORMTodoService(BaseTodoService):
     def __init__(
         self,
-        repo: BaseTodoRepository = Depends(SQLAlchemyTodoRepository),
+        repo: BaseTodoRepository = Depends(),
     ) -> None:
         self.repo = repo
 
