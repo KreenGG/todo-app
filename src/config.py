@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     )
 
     db: DatabaseConfig
+    test_db: DatabaseConfig
     jwt: Jwt
 
 

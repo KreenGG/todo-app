@@ -5,6 +5,7 @@ app:
 app-local:
 	uvicorn src.main:app --reload
 
+# Чтобы изменить .env внутри контейнера нужно удалить контейнер через компоуз и запустить его заново
 storages:
 	${DC} up -d postgres
 
