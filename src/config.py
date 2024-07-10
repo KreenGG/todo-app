@@ -18,12 +18,13 @@ class DatabaseConfig(BaseModel):
 
 class Jwt(BaseModel):
     secret: str
+    algorithm: str = "HS256"
     expires_minutes: int = 30
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file='.env',
+        env_file=".env",
         case_sensitive=False,
         env_nested_delimiter="__",
     )

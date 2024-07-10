@@ -24,7 +24,7 @@ class BaseUserRepository(ABC):
 
 
 class SQLAlchemyUserRepository(BaseUserRepository):
-    async def __init__(self, session: FromDishka[AsyncSession]) -> None:
+    def __init__(self, session: FromDishka[AsyncSession]) -> None:
         self.session = session
 
     async def find_by_id(self, user_id: int) -> User:
@@ -44,7 +44,11 @@ class SQLAlchemyUserRepository(BaseUserRepository):
         return result.to_entity()
 
     async def add(self, email: str, hashed_password: str) -> User:
-        query = insert(UserModel).values(email=email, hashed_password=hashed_password).returning(UserModel)
+        query = (
+            insert(UserModel)
+            .values(email=email, hashed_password=hashed_password)
+            .returning(UserModel)
+        )
         result = await self.session.execute(query)
         await self.session.commit()
         return result.scalar_one().to_entity()

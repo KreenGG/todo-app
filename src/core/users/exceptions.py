@@ -10,6 +10,16 @@ UserAlreadyExistsException = HTTPException(
     detail="User already exists",
 )
 
+TokenAbsentException = HTTPException(
+    status.HTTP_401_UNAUTHORIZED,
+    detail="Token absent",
+)
+
+TokenExpiredException = HTTPException(
+    status.HTTP_401_UNAUTHORIZED,
+    detail="Token absent",
+)
+
 InvalidCredentialsException = HTTPException(
     status.HTTP_401_UNAUTHORIZED,
     detail="Invalid credentials",

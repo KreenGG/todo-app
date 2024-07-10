@@ -1,15 +1,23 @@
 from abc import ABC, abstractmethod
 
 from dishka import FromDishka
+from fastapi import Request
 
-from src.core.users.entities import User
-from src.core.users.exceptions import (InvalidCredentialsException,
-                                       UserAlreadyExistsException,
-                                       UserNotFoundException)
-from src.core.users.repository import BaseUserRepository
-from src.core.users.schemas import UserLoginSchema, UserRegisterSchema
-from src.core.users.utils import (create_access_token, hash_password,
-                                  verify_password)
+from .entities import User
+from .exceptions import (
+    InvalidCredentialsException,
+    UserAlreadyExistsException,
+    UserNotFoundException,
+)
+from .repository import BaseUserRepository
+from .schemas import UserLoginSchema, UserRegisterSchema
+from .utils import (
+    create_access_token,
+    get_token,
+    get_token_payload,
+    hash_password,
+    verify_password,
+)
 
 
 class BaseUserService(ABC):
@@ -21,12 +29,13 @@ class BaseUserService(ABC):
     def login_user(self, user: UserLoginSchema) -> int:
         ...
 
+    @abstractmethod
+    def get_current_user(self, token: str) -> User:
+        ...
+
 
 class ORMUserService:
-    def __init__(
-        self,
-        repo: FromDishka[BaseUserRepository]
-    ) -> None:
+    def __init__(self, repo: FromDishka[BaseUserRepository]) -> None:
         self.repo = repo
 
     async def register_user(self, user: UserRegisterSchema) -> User:
@@ -47,3 +56,10 @@ class ORMUserService:
 
         token = create_access_token(data={"sub": user_db.id})
         return token
+
+    async def get_current_user(self, request: Request) -> User:
+        token = get_token(request)
+        payload = get_token_payload(token)
+        user_id = payload.get("sub")
+        user = await self.repo.find_by_id(user_id)
+        return user
