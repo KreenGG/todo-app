@@ -13,7 +13,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - psql-data:/var/lib/postgresql/todo_app/
+      - psql-data:/var/lib/postgresql/data
 
   main-app:
     build:
