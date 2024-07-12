@@ -1,19 +1,19 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, FutureDatetime
 
 
 class TodoAddSchema(BaseModel):
     title: str
     description: Optional[str]
-    target_date: datetime
+    target_date: FutureDatetime
 
 
 class TodoUpdateSchema(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
-    target_date: Optional[datetime] = None
+    target_date: Optional[FutureDatetime] = None
 
 
 class TodoOutSchema(TodoAddSchema):

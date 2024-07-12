@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 
 class UserOutSchema(BaseModel):
@@ -11,7 +11,7 @@ class UserOutSchema(BaseModel):
 
 class UserLoginSchema(BaseModel):
     email: EmailStr
-    password: str
+    password: str = Field(min_length=6)
 
 
 class UserRegisterSchema(UserLoginSchema):
