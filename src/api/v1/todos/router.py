@@ -1,21 +1,30 @@
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Request, status
 
+from src.core.users.service import BaseUserService
 from src.api.v1.schemas import ApiResponse, ErrorApiResponse
-from src.core.todos.schemas import (TodoAddSchema, TodoDeleteSchema,
-                                    TodoOutSchema, TodoUpdateSchema)
+from src.core.todos.schemas import TodoAddSchema, TodoOutSchema, TodoUpdateSchema
 from src.core.todos.service import BaseTodoService
 
-from .exceptions import TodoNotFoundException
+from .exceptions import BadRequestException, TodoNotFoundException
 
 router = APIRouter(route_class=DishkaRoute)
 
 
-@router.get("")
+@router.get(
+    "",
+    responses={
+        status.HTTP_200_OK: {"model": ApiResponse[list[TodoOutSchema]]},
+        status.HTTP_401_UNAUTHORIZED: {"model": ErrorApiResponse},
+    },
+)
 async def get_todo_list(
-    service: FromDishka[BaseTodoService],
+    todo_service: FromDishka[BaseTodoService],
+    user_service: FromDishka[BaseUserService],
+    request: Request,
 ) -> ApiResponse[list[TodoOutSchema]]:
-    todo_list = await service.get_todo_list()
+    user = await user_service.get_current_user(request)
+    todo_list = await todo_service.get_todo_list(user)
     response = ApiResponse[list[TodoOutSchema]](data=todo_list)
     return response
 
@@ -23,15 +32,19 @@ async def get_todo_list(
 @router.get(
     "/{id}",
     responses={
-        status.HTTP_200_OK: {'model': ApiResponse[TodoOutSchema]},
-        status.HTTP_404_NOT_FOUND: {'model': ErrorApiResponse},
+        status.HTTP_200_OK: {"model": ApiResponse[TodoOutSchema]},
+        status.HTTP_401_UNAUTHORIZED: {"model": ErrorApiResponse},
+        status.HTTP_404_NOT_FOUND: {"model": ErrorApiResponse},
     },
 )
 async def get_single_todo(
     id: int,
-    service: FromDishka[BaseTodoService],
+    todo_service: FromDishka[BaseTodoService],
+    user_service: FromDishka[BaseUserService],
+    request: Request,
 ) -> ApiResponse[TodoOutSchema]:
-    todo = await service.get_single_todo(id)
+    user = await user_service.get_current_user(request)
+    todo = await todo_service.get_single_todo(user, id)
     if not todo:
         raise TodoNotFoundException
 
@@ -42,12 +55,23 @@ async def get_single_todo(
 @router.post(
     "",
     status_code=status.HTTP_201_CREATED,
+    responses={
+        status.HTTP_201_CREATED: {"model": ApiResponse[TodoOutSchema]},
+        status.HTTP_400_BAD_REQUEST: {"model": ErrorApiResponse},
+        status.HTTP_401_UNAUTHORIZED: {"model": ErrorApiResponse},
+    },
 )
 async def create_todo(
     todo: TodoAddSchema,
-    service: FromDishka[BaseTodoService],
+    todo_service: FromDishka[BaseTodoService],
+    user_service: FromDishka[BaseUserService],
+    request: Request,
 ) -> ApiResponse[TodoOutSchema]:
-    todo = await service.add_todo(todo)
+    user = await user_service.get_current_user(request)
+    try:
+        todo = await todo_service.add_todo(user, todo)
+    except Exception:
+        raise BadRequestException
     response = ApiResponse[TodoOutSchema](data=todo)
     return response
 
@@ -55,26 +79,43 @@ async def create_todo(
 @router.patch(
     "/{id}",
     responses={
-        status.HTTP_200_OK: {'model': ApiResponse[TodoOutSchema]},
-        status.HTTP_404_NOT_FOUND: {'model': ErrorApiResponse},
+        status.HTTP_200_OK: {"model": ApiResponse[TodoOutSchema]},
+        status.HTTP_400_BAD_REQUEST: {"model": ErrorApiResponse},
+        status.HTTP_401_UNAUTHORIZED: {"model": ErrorApiResponse},
+        status.HTTP_404_NOT_FOUND: {"model": ErrorApiResponse},
     },
 )
 async def update_todo(
     todo: TodoUpdateSchema,
     id: int,
-    service: FromDishka[BaseTodoService],
+    todo_service: FromDishka[BaseTodoService],
+    user_service: FromDishka[BaseUserService],
+    request: Request,
 ):
-    todo = await service.update_todo(todo, id)
+    user = await user_service.get_current_user(request)
+    try:
+        todo = await todo_service.update_todo(user, todo, id)
+    except Exception:
+        raise BadRequestException
     if not todo:
         raise TodoNotFoundException
     response = ApiResponse[TodoOutSchema](data=todo)
     return response
 
 
-@router.delete("/{id}")
+@router.delete(
+    "/{id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {"model": ErrorApiResponse},
+    },
+)
 async def delete_todo(
     id: int,
-    service: FromDishka[BaseTodoService],
-) -> ApiResponse[TodoDeleteSchema]:
-    await service.delete_todo(id)
-    return ApiResponse[TodoDeleteSchema](data={"success": True})
+    todo_service: FromDishka[BaseTodoService],
+    user_service: FromDishka[BaseUserService],
+    request: Request,
+) -> None:
+    user = await user_service.get_current_user(request)
+    await todo_service.delete_todo(user, id)
+    return None

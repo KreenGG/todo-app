@@ -9,5 +9,6 @@ class Todo:
     title: str
     description: Optional[str]
     target_date: Optional[datetime]
+    user_id: int
     created_at: datetime
     updated_at: datetime

@@ -30,7 +30,7 @@ class BaseUserService(ABC):
         ...
 
     @abstractmethod
-    def get_current_user(self, token: str) -> User:
+    def get_current_user(self, request: Request) -> User:
         ...
 
 
