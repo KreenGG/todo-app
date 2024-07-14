@@ -1,29 +1,33 @@
 from collections.abc import AsyncGenerator
-
+from dishka import make_async_container
+from dishka.integrations.fastapi import setup_dishka
+from fastapi import FastAPI
 import pytest
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy import NullPool
-from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
-                                    create_async_engine)
 
-from src.config import settings
+from src.dependencies import MainProvider
 from src.core.models import Base
-from src.main import app
+from src.main import create_app
+
+
+from sqlalchemy import NullPool
+from sqlalchemy.ext.asyncio import create_async_engine
+from src.config import settings
+from tests.dependencies import TestProvider
 
 engine_test = create_async_engine(
     url=str(settings.test_db.url),
-    echo=settings.db.echo,
+    echo=False,
     poolclass=NullPool,  # Нужен чтобы избежать RuntimeError Task attached to a different loop
 )
 
-async_session_maker = async_sessionmaker(engine_test, expire_on_commit=False)
 
-
-async def get_test_session() -> AsyncGenerator[AsyncSession, None]:
-    async with async_session_maker() as session:
-        yield session
-
-# TODO: Поправить зависимости
+@pytest.fixture
+def app() -> FastAPI:
+    app = create_app()
+    container = make_async_container(MainProvider(), TestProvider(engine_test))
+    setup_dishka(container, app)
+    return app
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -35,7 +39,7 @@ async def create_tables():
 
 
 @pytest.fixture(scope="function")
-async def ac() -> AsyncGenerator[AsyncClient, None]:
+async def ac(app) -> AsyncGenerator[AsyncClient, None]:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as ac:

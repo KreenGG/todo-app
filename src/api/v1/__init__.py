@@ -15,6 +15,6 @@ router.include_router(
 
 router.include_router(
     users_router,
-    prefix="/users",
-    tags=["Users"],
+    prefix="/auth",
+    tags=["Auth"],
 )
