@@ -1,41 +1,46 @@
-import uvicorn
+from dishka import make_async_container
 from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
 
 from .api.v1 import router as v1_router
 from .api.v1.schemas import PingResponse
-from .dependencies import container
-
-app = FastAPI(
-    title="ToDo App",
-    debug=True,
-    root_path="/api",
-)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+from .dependencies import MainProvider
 
 
-@app.get("/", include_in_schema=False)
-def index():
-    return RedirectResponse("/api/docs")
+def create_app() -> FastAPI:
+    app = FastAPI(
+        title="ToDo App",
+        debug=True,
+        root_path="/api",
+    )
+
+    app.include_router(v1_router)
+
+    @app.get("/ping")
+    def ping() -> PingResponse:
+        return {"result": True}
+
+    return app
 
 
-@app.get("/ping")
-def ping() -> PingResponse:
-    return {"result": True}
+def create_production_app() -> FastAPI:
+    app = create_app()
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
+    container = make_async_container(MainProvider())
+    setup_dishka(container, app)
 
-app.include_router(v1_router)
+    return app
 
-setup_dishka(container, app)
 
 if __name__ == "__main__":
-    uvicorn.run(app, reload=True)
+    import uvicorn
+
+    uvicorn.run(factory=create_production_app, reload=True, app_dir="..")

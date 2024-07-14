@@ -3,7 +3,7 @@ app:
 	${DC} up --build
 
 app-local:
-	uvicorn src.main:app --reload
+	uvicorn --factory src.main:create_production_app --reload
 
 # Чтобы изменить .env внутри контейнера нужно удалить контейнер через компоуз и запустить его заново
 storages:

@@ -1,19 +1,16 @@
 from typing import AsyncIterable
 
-from dishka import Provider, Scope, make_async_container, provide
+from dishka import Provider, Scope, provide
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import async_session_maker
-from src.core.todos.repository import (BaseTodoRepository,
-                                       SQLAlchemyTodoRepository)
+from src.core.todos.repository import BaseTodoRepository, SQLAlchemyTodoRepository
 from src.core.todos.service import BaseTodoService, ORMTodoService
-from src.core.users.repository import (BaseUserRepository,
-                                       SQLAlchemyUserRepository)
+from src.core.users.repository import BaseUserRepository, SQLAlchemyUserRepository
 from src.core.users.service import BaseUserService, ORMUserService
 
 
-class MyProvider(Provider):
-
+class MainProvider(Provider):
     @provide(scope=Scope.REQUEST)
     async def session(self) -> AsyncIterable[AsyncSession]:
         async with async_session_maker() as session:
@@ -34,7 +31,3 @@ class MyProvider(Provider):
     @provide(scope=Scope.REQUEST)
     async def get_user_service(self, repo: BaseUserRepository) -> BaseUserService:
         return ORMUserService(repo)
-
-
-provider = MyProvider()
-container = make_async_container(provider)
