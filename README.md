@@ -17,23 +17,24 @@ This is a simple Todo application built with FastAPI. The application provides a
 
 ## Installation
 
-1. **Clone the repository:**
+1. Clone the repository:
 
    ```bash
    git clone https://github.com/KreenGG/todo-app.git
    cd todo-app
    ```
-2. Install all required packages in `Requirements` section.
+2. Create and configure `.env` file from `.env.example`(test section can be skipped)
+3. Install all required packages in `Requirements` section.
 
 ## Running the Application
 
-1. **Start application in Docker Compose using Makefile**
+1. Start application in Docker Compose using Makefile
 
    ```bash
    make app
    ```
 
-2. **Access the API documentation:**
+2. Access the API documentation:
 
    Open your browser and navigate to `http://127.0.0.1:8000/api/docs` to see the interactive API documentation provided by Swagger UI.
 
