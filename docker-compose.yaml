@@ -17,7 +17,6 @@ services:
 
   main-app:
     build:
-      context: ..
       dockerfile: Dockerfile
     container_name: main-app
     ports: 

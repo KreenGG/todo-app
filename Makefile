@@ -5,7 +5,7 @@ app:
 app-local:
 	uvicorn --factory src.main:create_production_app --reload
 
-# Чтобы изменить .env внутри контейнера нужно удалить контейнер через компоуз и запустить его заново
+# Чтобы изменить .env внутри контейнера баз данных нужно полностью удалить контейнер и запустить его заново
 storages:
 	${DC} up -d postgres
 
@@ -17,8 +17,3 @@ down:
 
 down-test:
 	${DC} -f docker-compose-test.yaml down
-
-run:
-	make down 
-	make storages 
-	make app
