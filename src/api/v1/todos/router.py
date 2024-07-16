@@ -6,7 +6,7 @@ from src.api.v1.schemas import ApiResponse, ErrorApiResponse
 from src.core.todos.schemas import TodoAddSchema, TodoOutSchema, TodoUpdateSchema
 from src.core.todos.service import BaseTodoService
 
-from .exceptions import BadRequestException, TodoNotFoundException
+from .exceptions import TodoNotFoundException
 
 router = APIRouter(route_class=DishkaRoute)
 
@@ -57,7 +57,6 @@ async def get_single_todo(
     status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_201_CREATED: {"model": ApiResponse[TodoOutSchema]},
-        status.HTTP_400_BAD_REQUEST: {"model": ErrorApiResponse},
         status.HTTP_401_UNAUTHORIZED: {"model": ErrorApiResponse},
     },
 )
@@ -68,19 +67,18 @@ async def create_todo(
     request: Request,
 ) -> ApiResponse[TodoOutSchema]:
     user = await user_service.get_current_user(request)
-    try:
-        todo = await todo_service.add_todo(user, todo)
-    except Exception:
-        raise BadRequestException
+
+    todo = await todo_service.add_todo(user, todo)
+
     response = ApiResponse[TodoOutSchema](data=todo)
     return response
 
 
+# TODO: Поменять на PUT, ибо так будет более интуитивно
 @router.patch(
     "/{id}",
     responses={
         status.HTTP_200_OK: {"model": ApiResponse[TodoOutSchema]},
-        status.HTTP_400_BAD_REQUEST: {"model": ErrorApiResponse},
         status.HTTP_401_UNAUTHORIZED: {"model": ErrorApiResponse},
         status.HTTP_404_NOT_FOUND: {"model": ErrorApiResponse},
     },
@@ -93,10 +91,8 @@ async def update_todo(
     request: Request,
 ):
     user = await user_service.get_current_user(request)
-    try:
-        todo = await todo_service.update_todo(user, todo, id)
-    except Exception:
-        raise BadRequestException
+
+    todo = await todo_service.update_todo(user, todo, id)
     if not todo:
         raise TodoNotFoundException
     response = ApiResponse[TodoOutSchema](data=todo)
